@@ -43,3 +43,25 @@ def test_search_empty_query():
 def test_seats_left():
     assert FIXTURES[0].seats_left == 2
     assert FIXTURES[1].seats_left == 0
+
+
+@pytest.mark.parametrize("query", ["微積分Ａ一", "微積分A一", "ｃａｌｃｕｌｕｓ", "CALCULUS"])
+def test_fullwidth_folds_both_sides(query):
+    """The data carries fullwidth Ａ too, so folding only the query would still miss."""
+    from schema import Course
+    course = Course(
+        id="11510MATH101002", school="nthu", semester="11510",
+        name_zh="微積分Ａ一", name_en="Calculus A(I)", teachers=["李華倫"],
+        department="MATH", credits=4.0, times=["T1"], venues=["DELTA台達109"],
+    )
+    assert search([course], query), f"{query!r} found nothing"
+
+
+def test_tolerates_one_typo():
+    assert search(FIXTURES, "thermodinamics")
+
+
+def test_prebuilt_index_matches_inline():
+    from search import build_index
+    idx = build_index(FIXTURES)
+    assert search(FIXTURES, "微積分", index=idx) == search(FIXTURES, "微積分")

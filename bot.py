@@ -7,7 +7,7 @@ import discord
 from discord import app_commands
 
 from schema import Course
-from search import search
+from search import build_index, search
 from tests.fixtures import FIXTURES
 
 SCHOOLS = ["nthu", "ncku"]
@@ -19,6 +19,7 @@ def load_courses() -> list[Course]:
 
 
 COURSES = load_courses()
+INDEX = build_index(COURSES)
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
