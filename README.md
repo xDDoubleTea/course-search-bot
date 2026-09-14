@@ -5,10 +5,9 @@ Discord course search for Taiwanese universities. One schema, one adapter per sc
 ## Run
 
 ```sh
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python3 -m pytest tests/ -q       # 7 passing
-DISCORD_TOKEN=... python3 bot.py  # /course 微積分
+uv sync
+uv run pytest -q                   # 7 passing
+DISCORD_TOKEN=... uv run bot.py    # /course 微積分
 ```
 
 Runs on fixtures until an adapter lands. No scraper needed to develop the bot.

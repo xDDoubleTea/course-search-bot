@@ -1,0 +1,20 @@
+[project]
+name = "course-search-bot"
+version = "0.1.0"
+description = "Discord course search for Taiwanese universities. One schema, one adapter per school."
+requires-python = ">=3.10"
+dependencies = [
+    "discord-py>=2.4",
+    "httpx>=0.27",
+    "beautifulsoup4>=4.12",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
