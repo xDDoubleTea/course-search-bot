@@ -58,9 +58,16 @@ def search(
         q,
         build_index(courses) if index is None else index,
         scorer=fuzz.partial_ratio,
-        limit=limit * 4,
+        limit=None,
         score_cutoff=cutoff,
     )
-    # Best score first; ties broken by shorter title, where the query fills more of it.
-    ranked = sorted(hits, key=lambda hit: (-hit[1], len(courses[hit[2]].name_zh)))
-    return [courses[index] for _, _, index in ranked[:limit]]
+
+    # partial_ratio scores every superstring 100, so a common query ties hundreds
+    # of courses and truncating here would drop the exact match before ranking.
+    # All candidates are kept and ordered: exact title first, then score, then
+    # the shortest title, where the query fills the most of it.
+    def rank(hit: tuple[str, float, int]) -> tuple[bool, float, int]:
+        course = courses[hit[2]]
+        return (fold(course.name_zh) != q, -hit[1], len(course.name_zh))
+
+    return [courses[position] for _, _, position in sorted(hits, key=rank)[:limit]]
