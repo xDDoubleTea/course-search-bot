@@ -6,8 +6,8 @@ Discord course search for Taiwanese universities. One schema, one adapter per sc
 
 ```sh
 uv sync
-uv run pytest -q                       # 56 tests
-uv run pytest -q -m "not integration"  # 54, no network
+uv run pytest -q                       # 74 tests
+uv run pytest -q -m "not integration"  # 70, no network
 uv run ruff check . && uv run ruff format --check .
 DISCORD_TOKEN=... uv run bot.py        # /course 微積分
 ```
@@ -33,7 +33,8 @@ Runs on fixtures until an adapter lands. No scraper needed to develop the bot.
 | School | Source | Login? | Notes |
 |---|---|---|---|
 | NTHU | [`open_course_data.json`](https://www.ccxp.nthu.edu.tw/ccxp/INQUIRE/JH/OPENDATA/open_course_data.json) | no | official, daily, ~3.4 MB, current semester only |
-| NCKU | `course-query.acad.ncku.edu.tw` | no | not written yet |
+| NYCU | [`timetable.nycu.edu.tw`](https://timetable.nycu.edu.tw/) | no | `?r=main/*` JSON; one request per department, ~257 of them |
+| NCKU | `course-query.acad.ncku.edu.tw` | no | **not viable** — per-session encrypted filters, obfuscated JS, conditional captcha |
 
 Neither adapter touches a logged-in page. Enrollment counts are not published in
 NTHU's feed, so `enrolled` is None; seat tracking would need a captcha-gated

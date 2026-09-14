@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from adapters.nthu import NthuAdapter
+from adapters.nycu import NycuAdapter
 from schema import Course
 
 DATA = Path(__file__).parent / "data"
@@ -25,6 +26,26 @@ def nthu(nthu_raw, monkeypatch) -> NthuAdapter:
     """NthuAdapter with the network replaced by the frozen sample."""
     adapter = NthuAdapter()
     monkeypatch.setattr(adapter, "_fetch", lambda: nthu_raw)
+    return adapter
+
+
+@pytest.fixture(scope="session")
+def nycu_raw() -> dict:
+    """One get_cos_list response, trimmed to ten courses that between them cover
+    comma-separated times, bracketed campus flags, and a missing venue."""
+    return json.loads((DATA / "nycu_sample.json").read_text())
+
+
+@pytest.fixture
+def nycu(nycu_raw, monkeypatch) -> NycuAdapter:
+    """NycuAdapter with the department walk and the course query both stubbed."""
+    adapter = NycuAdapter()
+    monkeypatch.setattr(adapter, "departments", lambda semester: {"stub-dep-uid"})
+    monkeypatch.setattr(
+        adapter,
+        "_post",
+        lambda action, **data: nycu_raw if action == "get_cos_list" else [],
+    )
     return adapter
 
 
