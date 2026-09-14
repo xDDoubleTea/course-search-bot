@@ -6,15 +6,15 @@ from schema import Course
 
 SEARCHABLE = ("name_zh", "name_en", "department", "id")
 
-# Fullwidth ASCII sits 0xFEE0 above its halfwidth twin. Same three ranges
-# NTHUMods folds in packages/shared/src/utils/characters.ts: digits, A-Z, a-z.
+# Fullwidth ASCII sits 0xFEE0 above its halfwidth twin. Same spans NTHUMods folds
+# in packages/shared/src/utils/characters.ts, spelled the same way: [０-９Ａ-Ｚａ-ｚ].
 # Punctuation (：（）／) is deliberately left alone — folding it changes no match.
 _FULLWIDTH_OFFSET = 0xFEE0
-_FULLWIDTH_RANGES = ((0xFF10, 0xFF19), (0xFF21, 0xFF3A), (0xFF41, 0xFF5A))
+_FULLWIDTH_SPANS = (("０", "９"), ("Ａ", "Ｚ"), ("ａ", "ｚ"))
 _FOLD = {
     cp: chr(cp - _FULLWIDTH_OFFSET)
-    for low, high in _FULLWIDTH_RANGES
-    for cp in range(low, high + 1)
+    for low, high in _FULLWIDTH_SPANS
+    for cp in range(ord(low), ord(high) + 1)
 }
 
 

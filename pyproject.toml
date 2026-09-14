@@ -30,14 +30,22 @@ line-ending = "auto"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "ASYNC", "SIM", "RUF"]
-ignore = ["E501", "RUF001"]
+# RUF001/2/3 flag fullwidth characters as "ambiguous". Folding them is this
+# project's job, so they appear throughout the strings, docstrings and comments.
+ignore = ["E501", "RUF001", "RUF002", "RUF003"]
 
 [tool.pytest.ini_options]
 # "auto" means async test functions run without an explicit @pytest.mark.asyncio.
 asyncio_mode = "auto"
-# Put the repository root on sys.path so tests can import main, cogs, db and utils.
+# Put the repository root on sys.path so tests can import schema, search, adapters
+# and conformance.
 pythonpath = ["."]
 testpaths = ["tests"]
+# Unregistered marks are an error, so a typo in a marker name fails loudly.
+addopts = "--strict-markers"
+markers = [
+    "integration: hits a live university feed; deselect with -m 'not integration'",
+]
 # Live logs stay off by default: at level 10 the aiosqlite and SQLAlchemy chatter
 # buries the test results. Turn them on for a run with
 #   uv run pytest -o log_cli=true

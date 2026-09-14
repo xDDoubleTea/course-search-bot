@@ -5,10 +5,10 @@ import os
 
 import discord
 from discord import app_commands
+from tests.fixtures import FIXTURES
 
 from schema import Course
 from search import build_index, search
-from tests.fixtures import FIXTURES
 
 SCHOOLS = ["nthu", "ncku"]
 

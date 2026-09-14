@@ -31,6 +31,7 @@ def _ssl_context() -> ssl.SSLContext:
     context.verify_flags &= ~ssl.VERIFY_X509_STRICT
     return context
 
+
 # 科號 is fixed-width: 11510 AES_ 450100  ->  semester, department, number
 _SEMESTER = slice(0, 5)
 _DEPARTMENT = slice(5, 9)
@@ -94,7 +95,7 @@ class NthuAdapter:
             response = httpx.get(self._url, timeout=60, verify=_ssl_context())
             response.raise_for_status()
             self._raw = response.json()
-        return self._raw
+        return self._raw if self._raw is not None else []
 
     def semesters(self) -> list[str]:
         return sorted({r["科號"][_SEMESTER] for r in self._fetch()}, reverse=True)
@@ -104,5 +105,6 @@ class NthuAdapter:
         return [
             _to_course(raw)
             for raw in self._fetch()
-            if raw["科號"][_SEMESTER] == semester and not _clean(raw.get("停開註記", ""))
+            if raw["科號"][_SEMESTER] == semester
+            and not _clean(raw.get("停開註記", ""))
         ]

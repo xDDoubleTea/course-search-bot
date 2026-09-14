@@ -1,6 +1,6 @@
 """The one shape every adapter must produce. Owned here, not by contributors."""
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from typing import Literal
 
 School = Literal["nthu", "ncku"]

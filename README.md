@@ -6,9 +6,15 @@ Discord course search for Taiwanese universities. One schema, one adapter per sc
 
 ```sh
 uv sync
-uv run pytest -q                   # 7 passing
-DISCORD_TOKEN=... uv run bot.py    # /course 微積分
+uv run pytest -q                       # 56 tests
+uv run pytest -q -m "not integration"  # 54, no network
+uv run ruff check . && uv run ruff format --check .
+DISCORD_TOKEN=... uv run bot.py        # /course 微積分
 ```
+
+Only tests marked `integration` hit a live university feed, and they skip rather
+than fail when offline. Everything else runs against `tests/data/nthu_sample.json`
+— ten real records, each kept for a quirk it carries.
 
 Runs on fixtures until an adapter lands. No scraper needed to develop the bot.
 
@@ -19,7 +25,7 @@ Runs on fixtures until an adapter lands. No scraper needed to develop the bot.
 | `schema.py` | this repo | no — the contract |
 | `search.py` | this repo | no |
 | `bot.py` | this repo | no |
-| `tests/test_conformance.py` | this repo | no |
+| `conformance.py` | this repo | no — the contract check |
 | `adapters/*.py` | contributors | **yes** — the only bespoke part |
 
 ## Data sources
