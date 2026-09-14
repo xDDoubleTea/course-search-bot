@@ -79,3 +79,27 @@ class TestSearch:
 
     def test_index_length_tracks_catalog(self, catalog):
         assert len(build_index(catalog)) == len(catalog)
+
+    def test_exact_title_outranks_longer_matches(self, catalog):
+        """partial_ratio scores every superstring 100, so an exact title has to
+        be lifted explicitly or it drowns among the courses that contain it."""
+        import dataclasses
+
+        exact = dataclasses.replace(catalog[0], id="exact", name_zh="心理學")
+        noise = [
+            dataclasses.replace(catalog[0], id=f"n{i}", name_zh=f"{p}心理學")
+            for i, p in enumerate(["雙語", "健康", "教育", "社會", "認知", "發展"])
+        ]
+        assert search([*noise, exact], "心理學")[0].id == "exact"
+
+    def test_common_query_does_not_truncate_before_ranking(self, catalog):
+        """A query matching far more courses than the limit must still rank
+        across all of them, not across an arbitrary prefix."""
+        import dataclasses
+
+        many = [
+            dataclasses.replace(catalog[0], id=f"m{i}", name_zh=f"專題討論{i:03d}")
+            for i in range(200)
+        ]
+        exact = dataclasses.replace(catalog[0], id="exact", name_zh="專題討論")
+        assert search([*many, exact], "專題討論", limit=1)[0].id == "exact"
