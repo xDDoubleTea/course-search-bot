@@ -22,6 +22,17 @@ Runs on fixtures until an adapter lands. No scraper needed to develop the bot.
 | `tests/test_conformance.py` | this repo | no |
 | `adapters/*.py` | contributors | **yes** — the only bespoke part |
 
+## Data sources
+
+| School | Source | Login? | Notes |
+|---|---|---|---|
+| NTHU | [`open_course_data.json`](https://www.ccxp.nthu.edu.tw/ccxp/INQUIRE/JH/OPENDATA/open_course_data.json) | no | official, daily, ~3.4 MB, current semester only |
+| NCKU | `course-query.acad.ncku.edu.tw` | no | not written yet |
+
+Neither adapter touches a logged-in page. Enrollment counts are not published in
+NTHU's feed, so `enrolled` is None; seat tracking would need a captcha-gated
+endpoint and is deliberately out of scope.
+
 ## Adding a school
 
 1. Copy `adapters/nthu.py`, implement `semesters()` and `courses(semester)`

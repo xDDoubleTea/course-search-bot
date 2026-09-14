@@ -2,6 +2,7 @@
 so moving to HTTP interactions later means replacing only this file."""
 
 import os
+
 import discord
 from discord import app_commands
 
@@ -41,16 +42,22 @@ def embed_for(c: Course) -> discord.Embed:
 
 @tree.command(name="course", description="Search for a course")
 @app_commands.describe(query="Course name, teacher, or department")
-@app_commands.choices(school=[app_commands.Choice(name=s.upper(), value=s) for s in SCHOOLS])
+@app_commands.choices(
+    school=[app_commands.Choice(name=s.upper(), value=s) for s in SCHOOLS]
+)
 async def course(
     interaction: discord.Interaction,
     query: str,
     school: app_commands.Choice[str] | None = None,
 ):
-    pool = COURSES if school is None else [c for c in COURSES if c.school == school.value]
+    pool = (
+        COURSES if school is None else [c for c in COURSES if c.school == school.value]
+    )
     hits = search(pool, query, limit=5)
     if not hits:
-        await interaction.response.send_message(f"No match for `{query}`.", ephemeral=True)
+        await interaction.response.send_message(
+            f"No match for `{query}`.", ephemeral=True
+        )
         return
     await interaction.response.send_message(embeds=[embed_for(c) for c in hits])
 

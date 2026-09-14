@@ -1,6 +1,6 @@
 """The one shape every adapter must produce. Owned here, not by contributors."""
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from typing import Literal
 
 School = Literal["nthu", "ncku"]
@@ -8,15 +8,15 @@ School = Literal["nthu", "ncku"]
 
 @dataclass(frozen=True, slots=True)
 class Course:
-    id: str  # school-unique, opaque
+    id: str
     school: School
-    semester: str  # "11510"
+    semester: str
     name_zh: str
     name_en: str
     teachers: list[str]
     department: str
     credits: float
-    times: list[str]  # normalized "W3-4", never the school's raw format
+    times: list[str]
     venues: list[str]
     capacity: int | None = None
     enrolled: int | None = None

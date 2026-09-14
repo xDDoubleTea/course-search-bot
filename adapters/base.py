@@ -1,6 +1,7 @@
 """Contributors implement this. Nothing else."""
 
 from typing import Protocol
+
 from schema import Course
 
 

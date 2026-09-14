@@ -4,17 +4,54 @@ version = "0.1.0"
 description = "Discord course search for Taiwanese universities. One schema, one adapter per school."
 requires-python = ">=3.10"
 dependencies = [
-    "discord-py>=2.4",
-    "httpx>=0.27",
-    "beautifulsoup4>=4.12",
+    "discord-py>=2.7.1",
+    "httpx>=0.28.1",
 ]
 
-[dependency-groups]
-dev = ["pytest>=8.0"]
 
 [tool.uv]
 package = false
 
+[tool.ruff]
+line-length = 88
+indent-width = 4
+
+target-version = "py313"
+
+[tool.ruff.format]
+quote-style = "double"
+
+indent-style = "space"
+
+skip-magic-trailing-comma = false
+
+line-ending = "auto"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "SIM", "RUF"]
+ignore = ["E501", "RUF001"]
+
 [tool.pytest.ini_options]
+# "auto" means async test functions run without an explicit @pytest.mark.asyncio.
+asyncio_mode = "auto"
+# Put the repository root on sys.path so tests can import main, cogs, db and utils.
 pythonpath = ["."]
 testpaths = ["tests"]
+# Live logs stay off by default: at level 10 the aiosqlite and SQLAlchemy chatter
+# buries the test results. Turn them on for a run with
+#   uv run pytest -o log_cli=true
+log_cli_level = 10
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.7",
+]
+
+# Source - https://stackoverflow.com/a/51633600
+# Posted by hoefling, modified by community. See post 'Timeline' for change history
+# Retrieved 2026-06-11, License - CC BY-SA 4.0
