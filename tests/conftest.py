@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from adapters.ncku import NckuAdapter
 from adapters.nthu import NthuAdapter
 from adapters.nycu import NycuAdapter
 from schema import Course
@@ -46,6 +47,22 @@ def nycu(nycu_raw, monkeypatch) -> NycuAdapter:
         "_post",
         lambda action, **data: nycu_raw if action == "get_cos_list" else [],
     )
+    return adapter
+
+
+@pytest.fixture(scope="session")
+def ncku_raw() -> dict:
+    """Ten real courses covering the noon period, ranges that cross it, letter
+    periods, an embedded flex-time widget, and a missing teacher."""
+    return json.loads((DATA / "ncku_sample.json").read_text())
+
+
+@pytest.fixture
+def ncku(ncku_raw, monkeypatch) -> NckuAdapter:
+    """NckuAdapter with both network endpoints stubbed."""
+    adapter = NckuAdapter()
+    monkeypatch.setattr(adapter, "current_semester", lambda: "115-1")
+    monkeypatch.setattr(adapter, "_get", lambda path: ncku_raw)
     return adapter
 
 
