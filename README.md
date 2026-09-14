@@ -4,6 +4,19 @@
 
 Discord course search for Taiwanese universities. One schema, one adapter per school.
 
+## How this was built
+
+Almost all of the code, tests and documentation here were written by
+[Claude Code](https://claude.com/claude-code). The design decisions, the review
+and the final call on every change are the author's — nothing is merged without
+being read and understood first — but you should assume the prose and the
+implementation are model-generated.
+
+This matters most for the adapters. Each one was validated against the live
+source before being committed (every `時間` string parsed, every `cos_time`
+grammar checked), and the integration tests re-check that on demand. Trust the
+tests, not the confident tone.
+
 ## Run
 
 ```sh
