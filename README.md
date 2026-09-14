@@ -1,5 +1,7 @@
 # course-search-bot
 
+**English** · [繁體中文](README.zh-TW.md)
+
 Discord course search for Taiwanese universities. One schema, one adapter per school.
 
 ## Run
@@ -12,11 +14,9 @@ uv run ruff check . && uv run ruff format --check .
 DISCORD_TOKEN=... uv run bot.py        # /course 微積分
 ```
 
-Only tests marked `integration` hit a live university feed, and they skip rather
-than fail when offline. Everything else runs against `tests/data/nthu_sample.json`
-— ten real records, each kept for a quirk it carries.
-
-Runs on fixtures until an adapter lands. No scraper needed to develop the bot.
+Only tests marked `integration` reach a live university source, and they skip
+rather than fail when offline. Everything else runs against frozen samples in
+`tests/data/`, each record kept for a quirk it carries.
 
 ## Layout
 
@@ -30,28 +30,50 @@ Runs on fixtures until an adapter lands. No scraper needed to develop the bot.
 
 ## Data sources
 
-| School | Source | Login? | Notes |
+| School | Source | Login | Shape |
 |---|---|---|---|
-| NTHU | [`open_course_data.json`](https://www.ccxp.nthu.edu.tw/ccxp/INQUIRE/JH/OPENDATA/open_course_data.json) | no | official, daily, ~3.4 MB, current semester only |
-| NYCU | [`timetable.nycu.edu.tw`](https://timetable.nycu.edu.tw/) | no | `?r=main/*` JSON; one request per department, ~257 of them |
-| NCKU | [`nckuhub.com`](https://nckuhub.com/course/) | no | third-party mirror; NCKU's own catalogue is not viable (per-session encrypted filters, obfuscated JS, captcha) |
+| NTHU | [`open_course_data.json`](https://www.ccxp.nthu.edu.tw/ccxp/INQUIRE/JH/OPENDATA/open_course_data.json) | none | official, daily, ~3.4 MB, one request |
+| NYCU | [`timetable.nycu.edu.tw`](https://timetable.nycu.edu.tw/) | none | `?r=main/*` JSON, one request per department (~257) |
+| NCKU | [`nckuhub.com`](https://nckuhub.com/course/) | none | third-party mirror, one request |
 
-Neither adapter touches a logged-in page. Enrollment counts are not published in
-NTHU's feed, so `enrolled` is None; seat tracking would need a captcha-gated
-endpoint and is deliberately out of scope.
+No adapter touches a logged-in page, solves a captcha, or uses a proxy pool.
+An adapter that needs any of those does not belong here.
+
+NCKU's own catalogue is not usable: every filter value is a per-session
+encrypted token, the query JavaScript is obfuscated, and a captcha gate fires
+under load. NCKU HUB scrapes it server-side and republishes public JSON.
+
+Enrolment counts are not exposed for any school. NTHU does not publish them,
+NYCU returns `-999` outside the enrolment window, and NCKU HUB's figures carry
+mixed ages. `capacity` and `enrolled` are `None` rather than misleading.
 
 ## Adding a school
 
 1. Copy `adapters/nthu.py`, implement `semesters()` and `courses(semester)`
-2. Return `Course` objects — public catalog data only, never logged-in pages
-3. Pass `conforms()` in `tests/test_conformance.py`
+2. Return `Course` objects — public catalogue data only, never logged-in pages
+3. Pass `conforms()` from `conformance.py`
 
-Meaning is encoded differently at every school (NTHU: character offsets in the
-course id; NCKU: CSS colors and `display:none`; NTUT: plain tables). The adapter
-absorbs that so nothing downstream has to know.
+Every school encodes meaning somewhere different: NTHU in character offsets
+within the course id, NYCU in a packed `cos_time` string, NCKU in a bracketed
+day-period grammar with HTML spliced into the field. The adapter absorbs that
+so nothing downstream has to know.
+
+## Data and conduct
+
+The code is MIT-licensed. **The course data is not ours.** It belongs to the
+universities, and in NCKU's case to NCKU HUB, a volunteer project that is not
+affiliated with the university.
+
+If you run or fork this:
+
+- Read only public endpoints. Never authenticate as a student.
+- Crawl on a schedule, not per user query. A full NYCU crawl is ~257 requests;
+  run it once a day, not once a search.
+- Cache. These are small university servers, not a CDN.
+- Do not redistribute bulk course data as if it were yours.
 
 ## Hosting note
 
-`discord.py` uses the gateway, so it needs an always-on process. `search.py`,
-`schema.py`, and the adapters have no Discord dependency, so switching to HTTP
-interactions (serverless, $0) later means rewriting `bot.py` only.
+`discord.py` uses the gateway, so it needs an always-on process. `schema.py`,
+`search.py`, and the adapters have no Discord dependency, so moving to HTTP
+interactions (serverless) later means rewriting `bot.py` only.
